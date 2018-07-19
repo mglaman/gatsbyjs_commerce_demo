@@ -1,0 +1,32 @@
+@import '~bootstrap/scss/bootstrap.scss';
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+  -webkit-font-smoothing: antialiased;
+}
+
+.menu-catalog__link {
+  color: inherit;
+  text-transform: uppercase;
+}
+.navbar-dark {
+  font-size: 80%;
+  color: #fff;
+  a, .btn-link {
+    color: #fff;
+  }
+}
+
+.attributes-color-swatches {
+  .form-check-input:checked ~ label {
+    border: 2px solid #41449f;
+  }
+  .form-check-input {
+    display: none;
+  }
+  label {
+    cursor: pointer;
+  }
+}
