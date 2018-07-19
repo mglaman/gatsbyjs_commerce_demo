@@ -9,7 +9,7 @@ const AllRecipes = ({ data }) => (
         <Container>
             <h1>Recipes</h1>
             <ul>
-                {data.allRecipes.edges.map(({ node }) => (
+                {data.allCommerceProductClothing.edges.map(({ node }) => (
                     <li>
                         <Link to={node.fields.slug}>{node.title}</Link>
                     </li>
