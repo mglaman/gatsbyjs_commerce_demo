@@ -36,7 +36,8 @@ class RecipeTemplate extends Component {
                 attribute_size: variations[0].relationships.attribute_size.attribute_value_id,
             },
             variations,
-            attributes
+            attributes,
+            message: '',
         };
     }
     onChange(event) {
@@ -48,12 +49,40 @@ class RecipeTemplate extends Component {
             }
         })
     }
+    getResolvedVariation() {
+        const self = this;
+        return this.props.data.commerceProductClothing.relationships.variations.filter(variation => {
+            return _.every(Object.keys(self.state.attributes), (fieldName) => {
+                return variation.relationships.hasOwnProperty(fieldName) &&
+                    (variation.relationships[fieldName].attribute_value_id.toString() === self.state.selectedAttributes[fieldName].toString());
+            });
+        }).shift();
+    }
+    onSubmit(event) {
+        event.preventDefault();
+        const selectedVariation = this.getResolvedVariation();
+        console.log(selectedVariation);
+        let currentCart = localStorage.getItem('cartData');
+        if (currentCart) {
+            currentCart = JSON.parse(currentCart);
+        } else {
+            currentCart = [];
+        }
+        currentCart.push(selectedVariation);
+        localStorage.setItem('cartData', JSON.stringify(currentCart));
+        this.setState({
+            message: selectedVariation.title + " added to your shopping cart."
+        })
+    }
     render() {
         const {data} = this.props;
         const images = this.state.defaultVariation.relationships.field_images;
         return (
             <Layout>
                 <div className={`container`}>
+                    {this.state.message.length > 0 ? (
+                        <div className="alert alert-success" role="alert">{this.state.message}</div>
+                    ) : []}
                     <div className={`row`}>
                         <div className={`col-md-6`}>
                             <Img fluid={images[0].localFile.childImageSharp.fluid} />
@@ -78,7 +107,7 @@ class RecipeTemplate extends Component {
                                 <small>{data.commerceProductClothing.relationships.field_brand.name}</small>
                             </p>
                             <p dangerouslySetInnerHTML={{__html: data.commerceProductClothing.body.processed}}/>
-                            <form>
+                            <form onSubmit={this.onSubmit.bind(this)}>
                                 <div className={`form-group`}>
                                     <div className={`font-weight-bold`}>Color</div>
                                     <div className={`attributes-color-swatches`}>
