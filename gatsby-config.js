@@ -1,12 +1,14 @@
 module.exports = {
   siteMetadata: {
     title: 'Gatsby Default Starter',
+    apiUrl: 'https://commerce2x.ddev.local/'
   },
   plugins: [
       {
           resolve: 'gatsby-source-drupal-fork',
           options: {
               baseUrl: 'https://dev-commerce2x-jsonapi.pantheonsite.io/',
+              // baseUrl: 'https://commerce2x.ddev.local/',
               apiBase: 'jsonapi', // endpoint of Drupal server
           },
       },

@@ -1,10 +1,11 @@
 import React, {Component} from "react";
+import {connect} from "react-redux"
 import Layout from "../layouts"
 import {graphql} from 'gatsby'
 import Img from "gatsby-image"
 import _ from "lodash";
 
-class RecipeTemplate extends Component {
+class ProductTemplate extends Component {
     constructor(props) {
         super(props);
         this.onChange = this.onChange.bind(this);
@@ -40,6 +41,7 @@ class RecipeTemplate extends Component {
             message: '',
         };
     }
+
     onChange(event) {
         const attribute_name = event.target.name;
         this.setState({
@@ -49,6 +51,7 @@ class RecipeTemplate extends Component {
             }
         })
     }
+
     getResolvedVariation() {
         const self = this;
         return this.props.data.commerceProductClothing.relationships.variations.filter(variation => {
@@ -58,22 +61,16 @@ class RecipeTemplate extends Component {
             });
         }).shift();
     }
+
     onSubmit(event) {
         event.preventDefault();
         const selectedVariation = this.getResolvedVariation();
-        console.log(selectedVariation);
-        let currentCart = localStorage.getItem('cartData');
-        if (currentCart) {
-            currentCart = JSON.parse(currentCart);
-        } else {
-            currentCart = [];
-        }
-        currentCart.push(selectedVariation);
-        localStorage.setItem('cartData', JSON.stringify(currentCart));
+        this.props.addToCart(selectedVariation);
         this.setState({
             message: selectedVariation.title + " added to your shopping cart."
-        })
+        }, () => window.scrollTo(0, 0))
     }
+
     render() {
         const {data} = this.props;
         const images = this.state.defaultVariation.relationships.field_images;
@@ -85,13 +82,16 @@ class RecipeTemplate extends Component {
                     ) : []}
                     <div className={`row`}>
                         <div className={`col-md-6`}>
-                            <Img fluid={images[0].localFile.childImageSharp.fluid} />
+                            <Img fluid={images[0].localFile.childImageSharp.fluid}/>
                             <div className={`row mb-2 mt-2`}>
-                                {images.map(image => (
-                                    <div key={image.id} className={`col mr-3 ml-3`}>
-                                        <Img fluid={image.localFile.childImageSharp.fluid} />
-                                    </div>
-                                ))}
+                                {images
+                                    .filter(image => image.hasOwnProperty('localFile') && image.localFile !== null)
+                                    .filter(image => image.localFile.hasOwnProperty('childImageSharp') && image.localFile.childImageSharp !== null)
+                                    .map(image => (
+                                        <div key={image.id} className={`col mr-3 ml-3`}>
+                                            <Img fluid={image.localFile.childImageSharp.fluid}/>
+                                        </div>
+                                    ))}
                             </div>
                         </div>
                         <div className={`col-md-6`}>
@@ -122,7 +122,8 @@ class RecipeTemplate extends Component {
                                                     onChange={this.onChange}
                                                     checked={this.state.selectedAttributes.attribute_color === attribute.attribute_value_id}
                                                 />
-                                                <label className="form-check-label" htmlFor={`attributeColor_value${attribute.attribute_value_id}`}>
+                                                <label className="form-check-label"
+                                                       htmlFor={`attributeColor_value${attribute.attribute_value_id}`}>
                                                     <div className="swatch--square" style={{
                                                         background: attribute.field_color.color,
                                                         width: '30px',
@@ -143,10 +144,12 @@ class RecipeTemplate extends Component {
                                         value={this.state.selectedAttributes.attribute_size}
                                     >
                                         {this.state.attributes.attribute_size.map(attribute => (
-                                            <option key={attribute.id} value={attribute.attribute_value_id}>{attribute.name}</option>
+                                            <option key={attribute.id}
+                                                    value={attribute.attribute_value_id}>{attribute.name}</option>
                                         ))}
                                     </select>
                                 </div>
+                                {/*<ConnectedAddToCartButton/>*/}
                                 <button className={`btn btn-success mt-3`}>Add to cart</button>
                             </form>
                         </div>
@@ -157,7 +160,19 @@ class RecipeTemplate extends Component {
     }
 }
 
-export default RecipeTemplate
+const mapDispatchToProps = dispatch => {
+    return {
+        addToCart: (selectedVariation) => dispatch(
+            {
+                type: `ADD_TO_CART`,
+                payload: selectedVariation
+            }
+        )
+    }
+};
+const ConnectedProductTemplate = connect(null, mapDispatchToProps)(ProductTemplate);
+
+export default ConnectedProductTemplate
 
 export const query = graphql`
 query ($slug: String!) {
@@ -176,6 +191,7 @@ query ($slug: String!) {
       }
       variations {
         id
+        variation_id
         title
         sku
         price {
