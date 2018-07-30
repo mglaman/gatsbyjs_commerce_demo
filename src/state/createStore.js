@@ -7,10 +7,29 @@ function getCurrentCartData() {
 
 const reducer = (state, {type, payload}) => {
     if (type === `ADD_TO_CART`) {
-        const newState = Object.assign({}, state, {
-            items: state.items,
-        });
-        newState.items.push(payload);
+        // Clone the state.
+        const newState = {
+            ...state,
+        };
+        // Combine values and adjust quantity.
+
+        const cartItem = {
+            quantity: 1,
+            id: payload.id,
+            product: payload,
+        };
+        let existingItemFound = false;
+
+        newState.items = newState.items.map((item => {
+            if (item.id === cartItem.id) {
+                existingItemFound = true;
+                item.quantity++;
+            }
+            return item;
+        }));
+        if (!existingItemFound) {
+            newState.items.push(cartItem);
+        }
         localStorage.setItem('cartData', JSON.stringify(newState.items));
         return newState;
     }
