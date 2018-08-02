@@ -15,7 +15,6 @@ CartBlock.defaultProps = {
 };
 
 const mapStateToProps = ({items}) => {
-    console.log(items.length);
     return {
         itemsCount: items.reduce(
             (accumulator, currentValue) => accumulator + currentValue.quantity,

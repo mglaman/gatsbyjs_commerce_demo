@@ -178,6 +178,7 @@ export const query = graphql`
 query ($slug: String!) {
   commerceProductClothing(fields: {slug: {eq: $slug}}) {
     id
+    uuid
     title
     body {
       processed
@@ -191,6 +192,7 @@ query ($slug: String!) {
       }
       variations {
         id
+        uuid
         variation_id
         title
         sku

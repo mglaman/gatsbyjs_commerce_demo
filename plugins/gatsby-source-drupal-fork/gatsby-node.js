@@ -28,7 +28,7 @@ exports.sourceNodes = async (
 
     // Fetch articles.
     // console.time(`fetch Drupal data`)
-    console.log(`Starting to fetch data from Drupal`)
+    console.log(`Starting to fetch data from Drupal: ${baseUrl}/${apiBase}`)
 
     // TODO restore this
     // let lastFetched

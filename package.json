@@ -6,15 +6,16 @@
   "author": "Kyle Mathews <mathews.kyle@gmail.com>",
   "dependencies": {
     "bootstrap": "^4.1.2",
+    "dotenv": "^6.0.0",
     "gatsby": "^2.0.0-beta.54",
-    "gatsby-image": "next",
-    "gatsby-plugin-glamor": "next",
-    "gatsby-plugin-google-analytics": "next",
-    "gatsby-plugin-offline": "next",
-    "gatsby-plugin-sass": "next",
-    "gatsby-plugin-sharp": "next",
-    "gatsby-plugin-typography": "next",
-    "gatsby-source-drupal": "^2.2.0-beta.10",
+    "gatsby-image": "^2.0.0-beta.7",
+    "gatsby-plugin-glamor": "^2.0.0-beta.3",
+    "gatsby-plugin-google-analytics": "^2.0.0-beta.3",
+    "gatsby-plugin-offline": "^2.0.0-beta.5",
+    "gatsby-plugin-sass": "^2.0.0-beta.6",
+    "gatsby-plugin-sharp": "^2.0.0-beta.7",
+    "gatsby-plugin-typography": "^2.2.0-beta.3",
+    "gatsby-source-drupal": "^2.0.41",
     "gatsby-transformer-sharp": "^2.1.1-beta.5",
     "glamor": "^2.20.40",
     "gray-percentage": "^2.0.0",
@@ -41,7 +42,7 @@
   "main": "n/a",
   "scripts": {
     "develop": "NODE_TLS_REJECT_UNAUTHORIZED=0 gatsby develop",
-    "build": "gatsby build",
+    "build": "NODE_TLS_REJECT_UNAUTHORIZED=0 gatsby build",
     "deploy": "gatsby build && firebase deploy"
   }
 }

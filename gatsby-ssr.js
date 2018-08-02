@@ -1,11 +1,10 @@
 import React from 'react'
-import {Provider} from 'react-redux'
-import {renderToString} from 'react-dom/server'
-const { renderStaticOptimized } = require(`glamor/server`)
+import { Provider } from 'react-redux'
+import { renderToString } from 'react-dom/server'
 
 import createStore from './src/state/createStore'
 
-exports.replaceRenderer = ({bodyComponent, replaceBodyHTMLString, setHeadComponents}) => {
+export const replaceRenderer = ({ bodyComponent, replaceBodyHTMLString }) => {
     const store = createStore();
 
     const ConnectedBody = () => (
@@ -13,28 +12,5 @@ exports.replaceRenderer = ({bodyComponent, replaceBodyHTMLString, setHeadCompone
             {bodyComponent}
         </Provider>
     );
-    let { html, css, ids } = renderStaticOptimized(() =>
-        renderToString(<ConnectedBody/>)
-    );
-
-    replaceBodyHTMLString(html)
-
-    setHeadComponents([
-        <style
-            id="glamor-styles"
-            key="glamor-styles"
-            dangerouslySetInnerHTML={{ __html: css }}
-        />,
-        <script
-            id="glamor-ids"
-            key="glamor-ids"
-            dangerouslySetInnerHTML={{
-                __html: `
-        // <![CDATA[
-        window._glamor = ${JSON.stringify(ids)}
-        // ]]>
-        `,
-            }}
-        />,
-    ])
-}
+    replaceBodyHTMLString(renderToString(<ConnectedBody/>))
+};

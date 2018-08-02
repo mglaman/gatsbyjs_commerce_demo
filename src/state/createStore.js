@@ -15,7 +15,7 @@ const reducer = (state, {type, payload}) => {
 
         const cartItem = {
             quantity: 1,
-            id: payload.id,
+            id: payload.uuid,
             product: payload,
         };
         let existingItemFound = false;

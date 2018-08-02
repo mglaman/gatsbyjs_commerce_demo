@@ -21,22 +21,22 @@ export default ({
                     <div className="col-md-9 text-right">
                         <ul className="menu nav menu-catalog">
                             <li className="menu-catalog__item nav-item">
-                                <a href="/products/category/apothecary-30" className="menu-catalog__link nav-link">Apothecary</a>
+                                <Link to={`/product/drupal-commerce-hoodie`} className="menu-catalog__link nav-link">Apothecary</Link>
                             </li>
                             <li className="menu-catalog__item nav-item">
-                                <a href="/products/category/audio-film-31" className="menu-catalog__link nav-link">Audio &amp; Film</a>
+                                <Link to={`/product/drupal-commerce-hoodie`} className="menu-catalog__link nav-link">Audio &amp; Film</Link>
                             </li>
                             <li className="menu-catalog__item nav-item">
-                                <a href="/products/category/men-32" className="menu-catalog__link nav-link">Men</a>
+                                <Link to={`/product/drupal-commerce-hoodie`} className="menu-catalog__link nav-link">Men</Link>
                             </li>
                             <li className="menu-catalog__item nav-item">
-                                <a href="/products/category/print-shop-33" className="menu-catalog__link nav-link">Print Shop</a>
+                                <Link to={`/product/drupal-commerce-hoodie`} className="menu-catalog__link nav-link">Print Shop</Link>
                             </li>
                             <li className="menu-catalog__item nav-item">
-                                <a href="/products/category/urban-living-34" className="menu-catalog__link nav-link">Urban Living</a>
+                                <Link to={`/product/drupal-commerce-hoodie`} className="menu-catalog__link nav-link">Urban Living</Link>
                             </li>
                             <li className="menu-catalog__item nav-item">
-                                <a href="/products/category/women-35" className="menu-catalog__link nav-link">Women</a>
+                                <Link to={`/product/drupal-commerce-hoodie`} className="menu-catalog__link nav-link">Women</Link>
                             </li>
                         </ul>
                     </div>

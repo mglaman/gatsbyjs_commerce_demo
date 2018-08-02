@@ -1,14 +1,17 @@
+require("dotenv").config({
+    path: `.env.${process.env.NODE_ENV}`,
+});
+
 module.exports = {
   siteMetadata: {
     title: 'Gatsby Default Starter',
-    apiUrl: 'https://commerce2x.ddev.local/'
+    apiUrl: process.env.API_URL
   },
   plugins: [
       {
           resolve: 'gatsby-source-drupal-fork',
           options: {
-              baseUrl: 'https://dev-commerce2x-jsonapi.pantheonsite.io/',
-              // baseUrl: 'https://commerce2x.ddev.local/',
+              baseUrl: process.env.API_URL,
               apiBase: 'jsonapi', // endpoint of Drupal server
           },
       },
@@ -19,7 +22,7 @@ module.exports = {
           },
       },
       `gatsby-plugin-offline`,
-      `gatsby-plugin-glamor`,
+      // `gatsby-plugin-glamor`,
       `gatsby-plugin-sharp`,
       `gatsby-transformer-sharp`,
       {
