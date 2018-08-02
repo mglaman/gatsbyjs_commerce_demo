@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import {connect} from "react-redux"
 import PropTypes from "prop-types"
-import {graphql} from 'gatsby'
+import {graphql, Link} from 'gatsby'
 import Layout from "../layouts"
 
 const formatPrice = (number, currencyCode) => (
@@ -108,8 +108,8 @@ class CartPage extends Component {
                 <div className={`container`}>
                     <h1>Your shopping cart</h1>
                     <ConnectedCartItemsSummary/>
-                    <button className={`btn btn-primary`} onClick={this.doCheckoutSummary.bind(this)}>Checkout summary
-                    </button>
+                    <button className={`btn btn-primary`} onClick={this.doCheckoutSummary.bind(this)}>Checkout summary</button>
+                    <Link className={`btn btn-link`} to={`/checkout`}>Go to checkout</Link>
                     <div>
                         <h3>Debugging order summary</h3>
                         <pre>
