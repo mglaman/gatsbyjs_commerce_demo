@@ -36,7 +36,7 @@ class CheckoutPage extends Component {
     currentStep: 'contact',
     shippingAsBilling: true,
   };
-  componentWillMount() {
+  componentDidMount() {
     const request = {
       purchasedEntities: this.props.cartItems,
     };
@@ -183,6 +183,7 @@ class CheckoutPage extends Component {
                       <input type="text" name={`shipping[postalCode]`} className="form-control" id="inputZip" />
                     </div>
                   </div>
+                  <input type={`hidden`} value={`US`} name={`shipping[countryCode]`}/>
                   <div>
                     <h6 className={`text-muted`}>Shipping method</h6>
                     <p>:) @todo: support shipping method selections.</p>
@@ -231,6 +232,7 @@ class CheckoutPage extends Component {
                         <input type="text" name={`billing[postalCode]`} className="form-control" id="inputZip" />
                       </div>
                     </div>
+                    <input type={`hidden`} value={`US`} name={`billing[countryCode]`}/>
                   </div>
                 </FieldSet>
               </div>
