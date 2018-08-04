@@ -32,26 +32,39 @@ FieldSet.defaultProps = {
 
 class CheckoutPage extends Component {
   state = {
-    currentStep: 'contact'
+    summary: null,
+    currentStep: 'contact',
+    shippingAsBilling: true,
   };
-  doNextStep() {
-    let nextStep = this.state.currentStep;
+  componentWillMount() {
+    const request = {
+      purchasedEntities: this.props.cartItems,
+    };
+    const url = `${this.props.data.site.siteMetadata.apiUrl.replace(/\/+$/, "")}/api/checkout/summary?_format=json  `;
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(request)
+    })
+      .then(res => res.json())
+      .then(summary => this.setState({ summary }))
+      .catch((a, b, c, d) => {})
+
+  }
+  getNextStep() {
     switch (this.state.currentStep) {
       case 'contact':
-        nextStep = 'shipping';
-        break;
+        return 'shipping';
       case 'shipping':
-        nextStep = 'payment';
-        break;
+        return 'payment';
       case 'payment':
-        nextStep = 'complete';
-        break;
+        return 'complete';
       default:
-        nextStep = 'contact';
+        return 'contact';
     }
-    this.setState({
-      currentStep: nextStep,
-    });
   }
   doPreviousStep(event) {
     event.preventDefault();
@@ -90,9 +103,14 @@ class CheckoutPage extends Component {
   }
   doCheckoutSummary(event) {
     event.preventDefault();
+
+    const formValues = this.serializeArray(event.target);
+    if (formValues['billing_same_as_shipping'] === 'on') {
+      formValues['billing'] = formValues['shipping'];
+    }
     const request = {
       purchasedEntities: this.props.cartItems,
-      ...this.serializeArray(event.target)
+      ...formValues
     };
     const url = `${this.props.data.site.siteMetadata.apiUrl.replace(/\/+$/, "")}/api/checkout/summary?_format=json  `;
     console.log(request);
@@ -106,12 +124,15 @@ class CheckoutPage extends Component {
     })
       .then(res => res.json())
       .then(json => {
+        console.log(json);
         if (this.state.currentStep !== 'payment') {
-          this.doNextStep();
+          this.setState({
+            summary: json,
+            currentStep: this.getNextStep(),
+          });
         }
         else {
           // Check for violations (ie: no payment, other things.)
-          console.log(json);
         }
       })
       .catch((a, b, c, d) => {
@@ -119,6 +140,9 @@ class CheckoutPage extends Component {
       })
   }
   render() {
+    if (!this.state.summary) {
+      return null;
+    }
     return (
       <Layout>
         <form className={`container`} onSubmit={this.doCheckoutSummary.bind(this)}>
@@ -161,12 +185,52 @@ class CheckoutPage extends Component {
                   </div>
                   <div>
                     <h6 className={`text-muted`}>Shipping method</h6>
+                    <p>:) @todo: support shipping method selections.</p>
                   </div>
                 </FieldSet>
                 <FieldSet expanded={this.state.currentStep === 'payment'} title={`Payment information`}>
+                  <div>
+                    Insert Braintree here
+                  </div>
                   <div className="form-group form-check">
-                    <input type="checkbox" className="form-check-input" id="exampleCheck1" name={`billing_same_as_shipping`} defaultChecked={true}/>
+                    <input
+                      type="checkbox"
+                      className="form-check-input"
+                      id="exampleCheck1"
+                      name={`billing_same_as_shipping`}
+                      defaultChecked={this.state.shippingAsBilling}
+                      onChange={(event) => this.setState({shippingAsBilling: event.target.checked})}
+                    />
                     <label className="form-check-label" htmlFor="exampleCheck1">My billing address is my shipping address</label>
+                  </div>
+                  <div className={`billing`} hidden={this.state.shippingAsBilling}>
+                    <div className="form-group">
+                      <label htmlFor="inputAddress">Address</label>
+                      <input type="text" name={`billing[addressLine1]`} className="form-control" id="inputAddress" placeholder="1234 Main St" />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="inputAddress2">Address 2</label>
+                      <input type="text" name={`billing[addressLine2]`} className="form-control" id="inputAddress2" placeholder="Apartment, studio, or floor" />
+                    </div>
+                    <div className="form-row">
+                      <div className="form-group col-md-6">
+                        <label htmlFor="inputCity">City</label>
+                        <input type="text" name={`billing[locality]`} className="form-control" id="inputCity" />
+                      </div>
+                      <div className="form-group col-md-4">
+                        <label htmlFor="inputState">State</label>
+                        <select id="inputState" name={`billing[administrativeArea]`} className="form-control" defaultValue={`_na`}>
+                          <option value={`_na`}>Choose...</option>
+                          {usStates.map(state => (
+                            <option key={state.abbreviation} value={state.abbreviation}>{state.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="form-group col-md-2">
+                        <label htmlFor="inputZip">Zip</label>
+                        <input type="text" name={`billing[postalCode]`} className="form-control" id="inputZip" />
+                      </div>
+                    </div>
                   </div>
                 </FieldSet>
               </div>
@@ -176,7 +240,20 @@ class CheckoutPage extends Component {
               <button className={`btn btn-link`} type={`button`} onClick={this.doPreviousStep.bind(this)}>Go back</button>
             </div>
             <div className={`col-md-4`}>
-              Sidebar
+              <div className={`card`}>
+                <div className={`card-body`}>
+                  <ul className={`list-group list-group-flush m-0 p-0`}>
+                    {this.state.summary.order.order_items.map(orderItem => (
+                      <li className={`list-group-item`}>
+                        {orderItem.title}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className={`card-footer`}>
+                  Total: {this.state.summary.order.total_price.formatted}
+                </div>
+              </div>
             </div>
           </div>
         </form>
