@@ -31,12 +31,16 @@ FieldSet.defaultProps = {
 
 
 class CheckoutPage extends Component {
-  state = {
-    summary: null,
-    currentStep: 'contact',
-    shippingAsBilling: true,
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      summary: null,
+      currentStep: 'contact',
+      shippingAsBilling: true,
+    };
+  }
   componentDidMount() {
+    debugger;
     const request = {
       purchasedEntities: this.props.cartItems,
     };
@@ -144,7 +148,6 @@ class CheckoutPage extends Component {
       return null;
     }
     return (
-      <Layout>
         <form className={`container`} onSubmit={this.doCheckoutSummary.bind(this)}>
           <div className={`row`}>
             <div className={`col-md-8`}>
@@ -259,11 +262,11 @@ class CheckoutPage extends Component {
             </div>
           </div>
         </form>
-      </Layout>
     )
   }
 }
 CheckoutPage.propTypes = {
+  data: PropTypes.object.isRequired,
   cartItems: PropTypes.array.isRequired
 };
 CheckoutPage.defaultProps = {
@@ -274,7 +277,15 @@ const mapStateToProps = ({items}) => {
     cartItems: items,
   }
 }
-export default connect(mapStateToProps, null)(CheckoutPage);
+const ConnectedCheckoutForm = connect(mapStateToProps)(CheckoutPage);
+
+const ExportedCheckoutPage = ({data}) => (
+  <Layout>
+    <ConnectedCheckoutForm data={data}/>
+  </Layout>
+)
+
+export default ExportedCheckoutPage;
 
 export const query = graphql`
 {
