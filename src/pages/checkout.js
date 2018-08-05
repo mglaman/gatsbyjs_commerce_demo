@@ -40,7 +40,6 @@ class CheckoutPage extends Component {
     };
   }
   componentDidMount() {
-    debugger;
     const request = {
       purchasedEntities: this.props.cartItems,
     };
@@ -249,14 +248,23 @@ class CheckoutPage extends Component {
                 <div className={`card-body`}>
                   <ul className={`list-group list-group-flush m-0 p-0`}>
                     {this.state.summary.order.order_items.map(orderItem => (
-                      <li className={`list-group-item`}>
+                      <li key={orderItem.uuid} className={`list-group-item`}>
                         {orderItem.title}
                       </li>
                     ))}
                   </ul>
                 </div>
                 <div className={`card-footer`}>
-                  Total: {this.state.summary.order.total_price.formatted}
+                  <ul className={`list-unstyled m-0 p-0`}>
+                    {this.state.summary.adjustments.map(adjustment => (
+                      <li className={``}>
+                        {adjustment.label}: {adjustment.amount.formatted}
+                      </li>
+                    ))}
+                    <li className={``}>
+                      Total: {this.state.summary.order.total_price.formatted}
+                    </li>
+                  </ul>
                 </div>
               </div>
             </div>
