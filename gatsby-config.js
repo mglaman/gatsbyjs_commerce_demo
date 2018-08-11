@@ -32,11 +32,5 @@ module.exports = {
               includePaths: ['node_modules/bootstrap/scss'],
           },
       },
-      {
-          resolve: `gatsby-plugin-typography`,
-          options: {
-              pathToConfigModule: `src/utils/typography.js`,
-          },
-      },
   ],
 }

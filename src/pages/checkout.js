@@ -35,8 +35,10 @@ class CheckoutPage extends Component {
     super(props);
     this.state = {
       summary: null,
+      promoCode: null,
       currentStep: 'contact',
       shippingAsBilling: true,
+      errors: [],
     };
   }
   componentDidMount() {
@@ -249,7 +251,7 @@ class CheckoutPage extends Component {
                   <ul className={`list-group list-group-flush m-0 p-0`}>
                     {this.state.summary.order.order_items.map(orderItem => (
                       <li key={orderItem.uuid} className={`list-group-item`}>
-                        {orderItem.title}
+                        <small>{orderItem.title}</small>
                       </li>
                     ))}
                   </ul>
@@ -257,7 +259,7 @@ class CheckoutPage extends Component {
                 <div className={`card-footer`}>
                   <ul className={`list-unstyled m-0 p-0`}>
                     {this.state.summary.adjustments.map(adjustment => (
-                      <li className={``}>
+                      <li key={adjustment.type} className={``}>
                         {adjustment.label}: {adjustment.amount.formatted}
                       </li>
                     ))}
@@ -265,6 +267,34 @@ class CheckoutPage extends Component {
                       Total: {this.state.summary.order.total_price.formatted}
                     </li>
                   </ul>
+                </div>
+              </div>
+              <div className={`mt-3`}>
+                <p><strong>Have a promotional code?</strong></p>
+                <div className={`form-group`}>
+                  <div className="input-group mb-3">
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="Promo code"
+                      aria-label="Promotional code"
+                      aria-describedby="button-addon2"
+                      defaultValue={this.state.promoCode}
+                      name={`couponCode`}
+                      onChange={(event) => this.setState({promoCode: event.target.value})}
+                    />
+                      <div className="input-group-append">
+                        <button
+                          className="btn btn-outline-primary"
+                          type="submit"
+                          id="button-addon2"
+                          // @todo support no validate and a non-forwarding submit.
+                          formNoValidate={false}
+                        >
+                          Apply
+                        </button>
+                      </div>
+                  </div>
                 </div>
               </div>
             </div>

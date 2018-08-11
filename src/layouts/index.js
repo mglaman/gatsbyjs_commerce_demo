@@ -1,8 +1,4 @@
 import React from "react"
-import "typeface-rochester"
-import "typeface-josefin-sans"
-import "typeface-josefin-slab"
-
 import Header from '../components/header';
 import CatalogMenu from '../components/catalog-menu';
 import '../styles/main.scss';

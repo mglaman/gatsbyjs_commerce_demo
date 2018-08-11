@@ -17,7 +17,7 @@ const getOrderTotal = (items) => (
 );
 
 const CartItemsSummary = ({cartItems}) => (
-    <table>
+    <table className={`table`}>
         <thead>
         <tr>
             <th>Product</th>
@@ -67,6 +67,7 @@ const ConnectedCartItemsSummary = connect(mapStateToProps, null)(CartItemsSummar
 class CartPage extends Component {
     constructor(props) {
         super(props);
+        // @todo use the store.
         const cartData = (typeof localStorage === 'object') ? localStorage.getItem('cartData') : null;
         this.state = {
             cartItems: (cartData) ? JSON.parse(cartData) : [],
