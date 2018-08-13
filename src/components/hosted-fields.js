@@ -1,40 +1,40 @@
 import React, { Component } from 'react'
-import { Braintree, HostedField } from 'react-braintree-fields';
+import { Braintree, HostedField } from 'react-braintree-fields'
 
 class HostedFields extends Component {
-  constructor(props) {
+  constructor (props) {
     super(props);
     [
       'onError',
       'getToken',
       'onCardTypeChange',
       'onAuthorizationSuccess',
-    ].forEach(prop => (this[prop] = this[prop].bind(this)));
+    ].forEach(prop => (this[prop] = this[prop].bind(this)))
   }
 
-  onError(error) {
-    this.setState({ error });
+  onError (error) {
+    this.setState({ error })
   }
 
-  getToken() {
-    return this.tokenize();
+  getToken () {
+    return this.tokenize()
   }
 
-  onCardTypeChange({ cards }) {
+  onCardTypeChange ({ cards }) {
     if (1 === cards.length) {
-      const [card] = cards;
+      const [card] = cards
 
-      this.setState({ card: card.type });
+      this.setState({ card: card.type })
 
       if (card.code && card.code.name) {
-        this.cvvField.setPlaceholder(card.code.name);
+        this.cvvField.setPlaceholder(card.code.name)
       } else {
-        this.cvvField.setPlaceholder('CVV');
+        this.cvvField.setPlaceholder('CVV')
       }
 
     } else {
-      this.setState({ card: '' });
-      this.cvvField.setPlaceholder('CVV');
+      this.setState({ card: '' })
+      this.cvvField.setPlaceholder('CVV')
     }
   }
 
@@ -42,26 +42,26 @@ class HostedFields extends Component {
     numberFocused: false,
   }
 
-  componentDidMount() {
+  componentDidMount () {
     // https://developers.braintreepayments.com/guides/authorization/tokenization-key/javascript/v3
-    this.setState({ authorization: 'sandbox_hx3ckycj_hy3tktc463w6g7pw' });
+    this.setState({ authorization: 'sandbox_hx3ckycj_hy3tktc463w6g7pw' })
   }
 
-  static renderResult(title, obj) {
-    if (!obj) { return null; }
+  static renderResult (title, obj) {
+    if (!obj) { return null }
     return (
       <div>
         <b>{title}:</b>
         <pre>{JSON.stringify(obj, null, 4)}</pre>
       </div>
-    );
+    )
   }
 
-  onAuthorizationSuccess() {
-    this.numberField.focus();
+  onAuthorizationSuccess () {
+    this.numberField.focus()
   }
 
-  render() {
+  render () {
     return (
       <div>
         {HostedFields.renderResult('Error', this.state.error)}
@@ -91,7 +91,7 @@ class HostedFields extends Component {
                 onFocus={() => this.setState({ numberFocused: true })}
                 className={this.state.numberFocused ? 'focused form-control' : 'form-control'}
                 prefill="4111 1111 1111 1111"
-                ref={numberField => { this.numberField = numberField; }}
+                ref={numberField => { this.numberField = numberField }}
               />
 
             </div>
@@ -109,7 +109,8 @@ class HostedFields extends Component {
               <div className={`col`}>
                 <div className={`form-group`}>
                   <label>CVV:</label>
-                  <HostedField type="cvv" placeholder="CVV" className={`form-control`} ref={cvvField => { this.cvvField = cvvField; }} />
+                  <HostedField type="cvv" placeholder="CVV" className={`form-control`}
+                               ref={cvvField => { this.cvvField = cvvField }}/>
                 </div>
               </div>
               <div className={`col`}>
@@ -122,8 +123,9 @@ class HostedFields extends Component {
           </div>
         </Braintree>
       </div>
-    );
+    )
   }
 }
+
 HostedFields.propTypes = {}
-export default HostedFields;
+export default HostedFields

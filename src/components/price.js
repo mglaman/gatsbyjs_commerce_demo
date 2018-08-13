@@ -22,6 +22,6 @@ Price.propTypes = {
 Price.defaultProps = {
   locale: 'en-US',
   className: '',
-  as: 'span'
+  as: 'span',
 }
 export default Price

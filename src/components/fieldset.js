@@ -10,7 +10,7 @@ const FieldSet = ({ expanded, title, children }) => (
     <div id="collapseOne" className={`collapse ${expanded ? 'show' : ''}`} aria-labelledby="headingOne"
          data-parent="#accordionExample">
       <div className="card-body">
-        { children }
+        {children}
       </div>
     </div>
   </div>
@@ -23,4 +23,4 @@ FieldSet.defaultProps = {
   expanded: false,
 }
 
-export default FieldSet;
+export default FieldSet
