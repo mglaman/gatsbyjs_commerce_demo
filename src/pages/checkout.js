@@ -5,7 +5,8 @@ import { connect } from 'react-redux'
 import { graphql } from 'gatsby'
 
 import FieldSet from '../components/fieldset'
-import usStates from '../utils/us-states.json'
+import Address from '../components/address'
+import HostedFields from '../components/hosted-fields'
 
 
 class CheckoutPage extends Component {
@@ -17,16 +18,28 @@ class CheckoutPage extends Component {
       currentStep: 'contact',
       shippingAsBilling: true,
       errors: [],
-      formValues: {},
+      formValues: {
+        billing_same_as_shipping: 'on',
+        shipping: {
+          // Hidden but no longer picked up due to change to onChange
+          countryCode: 'US',
+          addressLine2: '',
+        },
+        billing: {
+          // Hidden but no longer picked up due to change to onChange
+          countryCode: 'US',
+          addressLine2: '',
+        }
+      },
     };
   }
-  doSummaryFetch(summary = true) {
-    let url = '';
-    if (summary) {
-      url = `${this.props.data.site.siteMetadata.apiUrl.replace(/\/+$/, "")}/api/checkout/summary?_format=json`;
-    } else {
-      url = `${this.props.data.site.siteMetadata.apiUrl.replace(/\/+$/, "")}/api/checkout?_format=json`;
+  doSummaryFetch() {
+    const formValues = this.state.formValues;
+    if (formValues['billing_same_as_shipping'] === 'on') {
+      formValues['billing'] = formValues['shipping'];
     }
+
+    const url = `${this.props.data.site.siteMetadata.apiUrl.replace(/\/+$/, "")}/api/checkout/summary?_format=json`;
     return fetch(url, {
       method: 'POST',
       headers: {
@@ -35,7 +48,29 @@ class CheckoutPage extends Component {
       },
       body: JSON.stringify({
         purchasedEntities: this.props.cartItems,
-        ...this.state.formValues
+        ...formValues
+      })
+    }).then(res => res.json())
+  }
+  doFinalizeCheckout(payment) {
+    const formValues = this.state.formValues;
+    if (formValues['billing_same_as_shipping'] === 'on') {
+      formValues['billing'] = formValues['shipping'];
+    }
+    const url = `${this.props.data.site.siteMetadata.apiUrl.replace(/\/+$/, "")}/api/checkout?_format=json`;
+    return fetch(url, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        purchasedEntities: this.props.cartItems,
+        payment: {
+          ...payment,
+          gateway: 'braintree',
+        },
+        ...formValues,
       })
     }).then(res => res.json())
   }
@@ -63,7 +98,7 @@ class CheckoutPage extends Component {
       formValues
     })
   }
-  componentDidMount() {
+  componentWillMount() {
     this.doSummaryFetch()
       .then(summary => this.setState({ summary }))
       .catch((a, b, c, d) => {
@@ -124,7 +159,6 @@ class CheckoutPage extends Component {
     event.preventDefault();
     this.doSummaryFetch()
       .then(json => {
-        console.log(json);
         if (this.state.currentStep !== 'payment') {
           this.setState({
             summary: json,
@@ -140,7 +174,25 @@ class CheckoutPage extends Component {
               errors: json.violations.map(violation => violation.message),
             })
           } else {
-
+            this.hostedFields.getToken()
+              .then(token => {
+                // do the final charge
+                this.doFinalizeCheckout(token)
+                  .then(json => {
+                    debugger;
+                    // @todo purge cart data, confirm page.
+                    alert('Congrats! The order went in')
+                    window.location.href = '/';
+                  })
+                  .catch(error => this.setState({errors: ['There was an error taking your payment.']}))
+              })
+              .catch(error => {
+                this.setState({
+                  errors: [
+                    'The was an error processing your payment',
+                  ]
+                });
+              });
           }
         }
       })
@@ -169,43 +221,16 @@ class CheckoutPage extends Component {
                   </div>
                 </FieldSet>
                 <FieldSet expanded={this.state.currentStep === 'shipping'} title={`Shipping information`}>
-                  <div className="form-group">
-                    <label htmlFor="inputAddress">Address</label>
-                    <input type="text" name={`shipping[addressLine1]`} className="form-control" id="inputAddress" placeholder="1234 Main St" />
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="inputAddress2">Address 2</label>
-                    <input type="text" name={`shipping[addressLine2]`} className="form-control" id="inputAddress2" placeholder="Apartment, studio, or floor" />
-                  </div>
-                  <div className="form-row">
-                    <div className="form-group col-md-6">
-                      <label htmlFor="inputCity">City</label>
-                      <input type="text" name={`shipping[locality]`} className="form-control" id="inputCity" />
-                    </div>
-                    <div className="form-group col-md-4">
-                      <label htmlFor="inputState">State</label>
-                      <select id="inputState" name={`shipping[administrativeArea]`} className="form-control" defaultValue={`_na`}>
-                        <option value={`_na`}>Choose...</option>
-                        {usStates.map(state => (
-                          <option key={state.abbreviation} value={state.abbreviation}>{state.name}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="form-group col-md-2">
-                      <label htmlFor="inputZip">Zip</label>
-                      <input type="text" name={`shipping[postalCode]`} className="form-control" id="inputZip" />
-                    </div>
-                  </div>
-                  <input type={`hidden`} value={`US`} name={`shipping[countryCode]`}/>
+                  <Address elementName={`shipping`}/>
                   <div>
                     <h6 className={`text-muted`}>Shipping method</h6>
                     <p>:) @todo: support shipping method selections.</p>
                   </div>
                 </FieldSet>
                 <FieldSet expanded={this.state.currentStep === 'payment'} title={`Payment information`}>
-                  <div>
-                    Insert Braintree here
-                  </div>
+                  <HostedFields
+                    ref={hostedFields => {this.hostedFields = hostedFields; }}
+                  />
                   <div className="form-group form-check">
                     <input
                       type="checkbox"
@@ -218,34 +243,7 @@ class CheckoutPage extends Component {
                     <label className="form-check-label" htmlFor="exampleCheck1">My billing address is my shipping address</label>
                   </div>
                   <div className={`billing`} hidden={this.state.shippingAsBilling}>
-                    <div className="form-group">
-                      <label htmlFor="inputAddress">Address</label>
-                      <input type="text" name={`billing[addressLine1]`} className="form-control" id="inputAddress" placeholder="1234 Main St" />
-                    </div>
-                    <div className="form-group">
-                      <label htmlFor="inputAddress2">Address 2</label>
-                      <input type="text" name={`billing[addressLine2]`} className="form-control" id="inputAddress2" placeholder="Apartment, studio, or floor" />
-                    </div>
-                    <div className="form-row">
-                      <div className="form-group col-md-6">
-                        <label htmlFor="inputCity">City</label>
-                        <input type="text" name={`billing[locality]`} className="form-control" id="inputCity" />
-                      </div>
-                      <div className="form-group col-md-4">
-                        <label htmlFor="inputState">State</label>
-                        <select id="inputState" name={`billing[administrativeArea]`} className="form-control" defaultValue={`_na`}>
-                          <option value={`_na`}>Choose...</option>
-                          {usStates.map(state => (
-                            <option key={state.abbreviation} value={state.abbreviation}>{state.name}</option>
-                          ))}
-                        </select>
-                      </div>
-                      <div className="form-group col-md-2">
-                        <label htmlFor="inputZip">Zip</label>
-                        <input type="text" name={`billing[postalCode]`} className="form-control" id="inputZip" />
-                      </div>
-                    </div>
-                    <input type={`hidden`} value={`US`} name={`billing[countryCode]`}/>
+                    <Address elementName={`billing`}/>
                   </div>
                 </FieldSet>
               </div>
