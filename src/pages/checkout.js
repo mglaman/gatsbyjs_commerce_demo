@@ -4,30 +4,8 @@ import Layout from '../layouts'
 import { connect } from 'react-redux'
 import { graphql } from 'gatsby'
 
+import FieldSet from '../components/fieldset'
 import usStates from '../utils/us-states.json'
-
-const FieldSet = ({ expanded, title, children }) => (
-  <div className="card">
-    <div className="card-header" id="headingOne">
-      <h5 className="mb-0">{title}</h5>
-    </div>
-
-    <div id="collapseOne" className={`collapse ${expanded ? 'show' : ''}`} aria-labelledby="headingOne"
-         data-parent="#accordionExample">
-      <div className="card-body">
-        { children }
-      </div>
-    </div>
-  </div>
-)
-FieldSet.propTypes = {
-  expanded: PropTypes.bool,
-  title: PropTypes.string.isRequired,
-}
-FieldSet.defaultProps = {
-  expanded: false,
-}
-
 
 
 class CheckoutPage extends Component {
@@ -39,25 +17,58 @@ class CheckoutPage extends Component {
       currentStep: 'contact',
       shippingAsBilling: true,
       errors: [],
+      formValues: {},
     };
   }
-  componentDidMount() {
-    const request = {
-      purchasedEntities: this.props.cartItems,
-    };
-    const url = `${this.props.data.site.siteMetadata.apiUrl.replace(/\/+$/, "")}/api/checkout/summary?_format=json  `;
-    fetch(url, {
+  doSummaryFetch(summary = true) {
+    let url = '';
+    if (summary) {
+      url = `${this.props.data.site.siteMetadata.apiUrl.replace(/\/+$/, "")}/api/checkout/summary?_format=json`;
+    } else {
+      url = `${this.props.data.site.siteMetadata.apiUrl.replace(/\/+$/, "")}/api/checkout?_format=json`;
+    }
+    return fetch(url, {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(request)
-    })
-      .then(res => res.json())
-      .then(summary => this.setState({ summary }))
-      .catch((a, b, c, d) => {})
+      body: JSON.stringify({
+        purchasedEntities: this.props.cartItems,
+        ...this.state.formValues
+      })
+    }).then(res => res.json())
+  }
+  onFormChange(event) {
+    const target = event.target;
+    const value = target.type === 'checkbox' ? target.checked : target.value;
+    const name = target.name;
 
+    const formValues = this.state.formValues;
+    const parents = name.match(/(.*)\[(.*)\]/);
+    if (parents) {
+      if (!formValues[parents[1]]) {
+        formValues[parents[1]] = {};
+      }
+      formValues[parents[1]][parents[2]] = value;
+    } else {
+      formValues[name] = value;
+    }
+
+    if (formValues['billing_same_as_shipping'] === 'on') {
+      formValues['billing'] = formValues['shipping'];
+    }
+
+    this.setState({
+      formValues
+    })
+  }
+  componentDidMount() {
+    this.doSummaryFetch()
+      .then(summary => this.setState({ summary }))
+      .catch((a, b, c, d) => {
+        debugger;
+      })
   }
   getNextStep() {
     switch (this.state.currentStep) {
@@ -91,53 +102,46 @@ class CheckoutPage extends Component {
       currentStep: nextStep,
     });
   }
-  serializeArray(form) {
-    const formElements = Array.from(form.elements).filter(field => (field.name && !field.disabled && field.type !== 'file' && field.type !== 'reset' && field.type !== 'submit' && field.type !== 'button'));
-    return formElements.reduce((accumulator, currentValue, currentIndex) => {
-      const parents = currentValue.name.match(/(.*)\[(.*)\]/);
-      if (parents) {
-        if (!accumulator[parents[1]]) {
-          accumulator[parents[1]] = {};
-        }
-        accumulator[parents[1]][parents[2]] = currentValue.value;
-      } else {
-        accumulator[currentValue.name] = currentValue.value;
-      }
-      return accumulator;
-    }, {});
-  }
-  doCheckoutSummary(event) {
+  doApplyCoupon(event) {
     event.preventDefault();
-
-    const formValues = this.serializeArray(event.target);
-    if (formValues['billing_same_as_shipping'] === 'on') {
-      formValues['billing'] = formValues['shipping'];
-    }
-    const request = {
-      purchasedEntities: this.props.cartItems,
-      ...formValues
-    };
-    const url = `${this.props.data.site.siteMetadata.apiUrl.replace(/\/+$/, "")}/api/checkout/summary?_format=json  `;
-    console.log(request);
-    fetch(url, {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(request)
-    })
-      .then(res => res.json())
+    this.doSummaryFetch()
+      .then(json => {
+        console.log(json);
+        const errors = [];
+        if (json.order.coupons.length === 0) {
+          errors.push('The promotional code did not apply.');
+        }
+        this.setState({
+          summary: json,
+          errors
+        });
+      })
+      .catch((a, b, c, d) => {
+        console.log(a)
+      })
+  }
+  doStepSubmit(event) {
+    event.preventDefault();
+    this.doSummaryFetch()
       .then(json => {
         console.log(json);
         if (this.state.currentStep !== 'payment') {
           this.setState({
             summary: json,
+            errors: [],
             currentStep: this.getNextStep(),
           });
         }
         else {
           // Check for violations (ie: no payment, other things.)
+          if (json.violations.length > 0) {
+            this.setState({
+              summary: json,
+              errors: json.violations.map(violation => violation.message),
+            })
+          } else {
+
+          }
         }
       })
       .catch((a, b, c, d) => {
@@ -149,9 +153,14 @@ class CheckoutPage extends Component {
       return null;
     }
     return (
-        <form className={`container`} onSubmit={this.doCheckoutSummary.bind(this)}>
+        <form className={`container`} onSubmit={this.doStepSubmit.bind(this)} onChange={this.onFormChange.bind(this)}>
           <div className={`row`}>
             <div className={`col-md-8`}>
+              {this.state.errors.map(error => (
+                <div className={`alert alert-danger`}>
+                  { error }
+                </div>
+              ))}
               <div className="accordion mb-3" id="accordionExample">
                 <FieldSet expanded={this.state.currentStep === 'contact'} title={`Contact information`}>
                   <div className={`form-group`}>
@@ -288,8 +297,8 @@ class CheckoutPage extends Component {
                           className="btn btn-outline-primary"
                           type="submit"
                           id="button-addon2"
-                          // @todo support no validate and a non-forwarding submit.
-                          formNoValidate={false}
+                          formNoValidate={true}
+                          onClick={this.doApplyCoupon.bind(this)}
                         >
                           Apply
                         </button>
