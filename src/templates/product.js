@@ -4,6 +4,7 @@ import Layout from "../layouts"
 import {graphql} from 'gatsby'
 import Img from "gatsby-image"
 import _ from "lodash";
+import Price from '../components/price'
 
 class ProductTemplate extends Component {
     constructor(props) {
@@ -48,8 +49,10 @@ class ProductTemplate extends Component {
             selectedAttributes: {
                 ...this.state.selectedAttributes,
                 [attribute_name]: parseInt(event.target.value),
-            }
-        })
+            },
+        }, () => this.setState({
+          defaultVariation: this.getResolvedVariation()
+        }))
     }
 
     getResolvedVariation() {
@@ -96,13 +99,13 @@ class ProductTemplate extends Component {
                         </div>
                         <div className={`col-md-6`}>
                             <h1 className={`font-weight-light`}>{data.commerceProductClothing.title}</h1>
-                            <p className={`font-weight-bold h4`}>
-                                {parseInt(this.state.currentPrice.number).toLocaleString('en-US', {
-                                    style: 'currency',
-                                    currency: this.state.currentPrice.currency_code
-                                })}
-                            </p>
-                            sku
+                          <Price
+                            as={`p`}
+                            className={`font-weight-bold h4`}
+                            number={this.state.currentPrice.number}
+                            currencyCode={this.state.currentPrice.currency_code}
+                          />
+                          { this.state.defaultVariation.sku }
                             <p className={`text-uppercase`}>
                                 <small>{data.commerceProductClothing.relationships.field_brand.name}</small>
                             </p>
@@ -149,7 +152,6 @@ class ProductTemplate extends Component {
                                         ))}
                                     </select>
                                 </div>
-                                {/*<ConnectedAddToCartButton/>*/}
                                 <button className={`btn btn-success mt-3`}>Add to cart</button>
                             </form>
                         </div>

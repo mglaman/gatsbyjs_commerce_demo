@@ -98,7 +98,7 @@ class CheckoutPage extends Component {
       formValues
     })
   }
-  componentWillMount() {
+  componentDidMount() {
     this.doSummaryFetch()
       .then(summary => this.setState({ summary }))
       .catch((a, b, c, d) => {
