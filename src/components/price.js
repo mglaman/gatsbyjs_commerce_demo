@@ -13,7 +13,10 @@ const Price = ({ number, currencyCode, locale, className, as }) => {
   )
 }
 Price.propTypes = {
-  number: PropTypes.string.isRequired,
+  number: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number
+  ]).isRequired,
   currencyCode: PropTypes.string.isRequired,
   locale: PropTypes.string,
   className: PropTypes.string,

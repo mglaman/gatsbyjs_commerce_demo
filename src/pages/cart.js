@@ -1,55 +1,74 @@
-import React, { Component } from 'react'
+import React from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import { graphql, Link } from 'gatsby'
 import Layout from '../layouts'
+import Price from '../components/price'
 
-const formatPrice = (number, currencyCode) => (
-  parseInt(number).toLocaleString('en-US', {
-    style: 'currency',
-    currency: currencyCode,
-  })
-)
 const getOrderTotal = (items) => (
   items.reduce((accumulator, currentValue) => {
     return accumulator + (currentValue.product.price.number * currentValue.quantity)
   }, 0)
 )
 
-const CartItemsSummary = ({ cartItems }) => (
-  <table className={`table`}>
-    <thead>
-    <tr>
-      <th>Product</th>
-      <th>Price</th>
-      <th>Quantity</th>
-      <th className={`text-right`}>Total price</th>
-    </tr>
-    </thead>
-    <tbody>
-    {cartItems.map(purchasedEntity => (
-      <tr key={purchasedEntity.id}>
-        <td>{purchasedEntity.product.title}</td>
-        <td>
-          {formatPrice(purchasedEntity.product.price.number, purchasedEntity.product.price.currency_code)}
-        </td>
-        <td>{purchasedEntity.quantity}</td>
-        <td className={`text-right`}>
-          {formatPrice(purchasedEntity.product.price.number * purchasedEntity.quantity, purchasedEntity.product.price.currency_code)}
+const CartItemsSummary = ({ cartItems, updateCartItem, removeCartItem }) => (
+  <div className={`table-responsive`}>
+    <table className={`table`}>
+      <thead>
+      <tr>
+        <th>Product</th>
+        <th>Price</th>
+        <th style={{
+          width: '65px'
+        }}>Quantity</th>
+        <th className={`text-right`}>Total price</th>
+        <th />
+      </tr>
+      </thead>
+      <tbody>
+      {cartItems.map(purchasedEntity => (
+        <tr key={purchasedEntity.id}>
+          <td>{purchasedEntity.product.title}</td>
+          <td>
+            <Price number={purchasedEntity.product.price.number} currencyCode={purchasedEntity.product.price.currency_code} />
+          </td>
+          <td>
+            <div className={`form-group`}>
+              <input
+                type={`number`}
+                onChange={updateCartItem.bind(this)}
+                value={purchasedEntity.quantity}
+                data-order-item={purchasedEntity.id}
+                min={0}
+                className={`form-control`}
+              />
+            </div>
+          </td>
+          <td className={`text-right`}>
+            <Price number={purchasedEntity.product.price.number * purchasedEntity.quantity} currencyCode={purchasedEntity.product.price.currency_code} />
+          </td>
+          <td>
+            <button type="button" className="close" onClick={removeCartItem.bind(this)} data-order-item={purchasedEntity.id}>
+              &times;
+            </button>
+          </td>
+        </tr>
+      ))}
+      </tbody>
+      <tfoot>
+      <tr>
+        <td/>
+        <td/>
+        <td/>
+        <td colSpan={2} className={`text-right`}>
+          Total price:
+          <Price number={getOrderTotal(cartItems)} currencyCode={`USD`}
+          />
         </td>
       </tr>
-    ))}
-    </tbody>
-    <tfoot>
-    <tr>
-      <td/>
-      <td/>
-      <td colSpan={2} className={`text-right`}>
-        Total price: {formatPrice(getOrderTotal(cartItems), 'USD')}
-      </td>
-    </tr>
-    </tfoot>
-  </table>
+      </tfoot>
+    </table>
+  </div>
 )
 CartItemsSummary.propTypes = {
   cartItems: PropTypes.array.isRequired,
@@ -62,66 +81,23 @@ const mapStateToProps = ({ items }) => {
     cartItems: items,
   }
 }
-const ConnectedCartItemsSummary = connect(mapStateToProps, null)(CartItemsSummary)
-
-class CartPage extends Component {
-  constructor (props) {
-    super(props)
-    // @todo use the store.
-    const cartData = (typeof localStorage === 'object') ? localStorage.getItem('cartData') : null
-    this.state = {
-      cartItems: (cartData) ? JSON.parse(cartData) : [],
-      debugResponse: '',
-    }
-  }
-
-  doCheckoutSummary (event) {
-    event.preventDefault()
-    const request = {
-      purchasedEntities: this.state.cartItems,
-    }
-    const url = `${this.props.data.site.siteMetadata.apiUrl.replace(/\/+$/, '')}/api/checkout/summary?_format=json  `
-    console.log(url)
-    console.log(request)
-    fetch(url, {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(request),
-    })
-      .then(res => res.json())
-      .then(json => {
-        console.log(json)
-        this.setState({
-          debugResponse: (json),
-        })
-      })
-      .catch((a, b, c, d) => {
-        console.log(a)
-      })
-  }
-
-  render () {
-    return (
-      <Layout>
-        <div className={`container`}>
-          <h1>Your shopping cart</h1>
-          <ConnectedCartItemsSummary/>
-          <button className={`btn btn-primary`} onClick={this.doCheckoutSummary.bind(this)}>Checkout summary</button>
-          <Link className={`btn btn-link`} to={`/checkout`}>Go to checkout</Link>
-          <div>
-            <h3>Debugging order summary</h3>
-            <pre>
-              <code>{JSON.stringify(this.state.debugResponse, null, 2)}</code>
-            </pre>
-          </div>
-        </div>
-      </Layout>
-    )
+const mapDispatchToProps = dispatch => {
+  return {
+    updateCartItem: (event) => dispatch({ type: `UPDATE_CART_ITEM`, event }),
+    removeCartItem: (event) => dispatch({ type: `REMOVE_CART_ITEM`, event }),
   }
 }
+const ConnectedCartItemsSummary = connect(mapStateToProps, mapDispatchToProps)(CartItemsSummary)
+
+const CartPage = () => (
+  <Layout>
+    <div className={`container`}>
+      <h1>Your shopping cart</h1>
+      <ConnectedCartItemsSummary/>
+      <Link className={`btn btn-primary`} to={`/checkout`}>Go to checkout</Link>
+    </div>
+  </Layout>
+)
 
 export default CartPage
 

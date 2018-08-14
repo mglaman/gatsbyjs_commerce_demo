@@ -5,8 +5,8 @@ function getCurrentCartData () {
   return currentCart ? JSON.parse(currentCart) : []
 }
 
-const reducer = (state, { type, payload }) => {
-  if (type === `ADD_TO_CART`) {
+const reducer = (state, action) => {
+  if (action.type === `ADD_TO_CART`) {
     // Clone the state.
     const newState = {
       ...state,
@@ -15,8 +15,8 @@ const reducer = (state, { type, payload }) => {
 
     const cartItem = {
       quantity: 1,
-      id: payload.uuid,
-      product: payload,
+      id: action.payload.uuid,
+      product: action.payload,
     }
     let existingItemFound = false
 
@@ -32,6 +32,40 @@ const reducer = (state, { type, payload }) => {
     }
     localStorage.setItem('cartData', JSON.stringify(newState.items))
     return newState
+  }
+  else if (action.type === `UPDATE_CART_ITEM`) {
+    // Clone the state.
+    const newState = {
+      ...state,
+    }
+    const target = action.event.target;
+    const orderItem = target.dataset.orderItem;
+    const quantity = parseInt(target.value) || 0;
+
+    newState.items = newState.items.map(item => {
+      if (item.id === orderItem) {
+        item.quantity = quantity;
+      }
+      return item
+    });
+    // @todo Filter when there is a timeout.
+    // newState.items = newState.items.filter(item => item.quantity > 0);
+    localStorage.setItem('cartData', JSON.stringify(newState.items))
+    return newState;
+  }
+  else if (action.type === `REMOVE_CART_ITEM`) {
+    // Clone the state.
+    const newState = {
+      ...state,
+    }
+    const target = action.event.target;
+    const orderItem = target.dataset.orderItem;
+
+    newState.items = newState.items.filter(item => item.id !== orderItem);
+    localStorage.setItem('cartData', JSON.stringify(newState.items))
+    debugger;
+
+    return newState;
   }
   return state
 }
