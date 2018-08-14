@@ -7,6 +7,7 @@ import { graphql } from 'gatsby'
 import FieldSet from '../components/fieldset'
 import Address from '../components/address'
 import HostedFields from '../components/hosted-fields'
+import CheckoutSummary from '../components/checkout-summary'
 
 class CheckoutPage extends Component {
   constructor (props) {
@@ -222,21 +223,21 @@ class CheckoutPage extends Component {
               </div>
             ))}
             <div className="accordion mb-3" id="accordionExample">
-              <FieldSet expanded={this.state.currentStep === 'contact'} title={`Contact information`}>
+              <FieldSet expanded={this.state.currentStep === 'contact'} title={`Contact information`} step={`contact`}>
                 <div className={`form-group`}>
                   <label>Your email</label>
                   <input type={`email`} name={`email`} required={true} placeholder={`me@example.com`}
                          className={`form-control`}/>
                 </div>
               </FieldSet>
-              <FieldSet expanded={this.state.currentStep === 'shipping'} title={`Shipping information`}>
+              <FieldSet expanded={this.state.currentStep === 'shipping'} title={`Shipping information`} step={`shipping`}>
                 <Address elementName={`shipping`}/>
                 <div>
                   <h6 className={`text-muted`}>Shipping method</h6>
                   <p>:) @todo: support shipping method selections.</p>
                 </div>
               </FieldSet>
-              <FieldSet expanded={this.state.currentStep === 'payment'} title={`Payment information`}>
+              <FieldSet expanded={this.state.currentStep === 'payment'} title={`Payment information`} step={`payment`}>
                 <HostedFields
                   ref={hostedFields => {this.hostedFields = hostedFields }}
                 />
@@ -257,35 +258,14 @@ class CheckoutPage extends Component {
                 </div>
               </FieldSet>
             </div>
-            <button className={`btn btn-primary`} type={`submit`}>
-              {this.state.currentStep !== 'payment' ? `Continue` : `Pay and complete purchase`}
-            </button>
-            <button className={`btn btn-link`} type={`button`} onClick={this.doPreviousStep.bind(this)}>Go back</button>
+            {/*<button className={`btn btn-link`} type={`button`} onClick={this.doPreviousStep.bind(this)}>Go back</button>*/}
           </div>
           <div className={`col-md-4`}>
-            <div className={`card`}>
-              <div className={`card-body`}>
-                <ul className={`list-group list-group-flush m-0 p-0`}>
-                  {this.state.summary.order.order_items.map(orderItem => (
-                    <li key={orderItem.uuid} className={`list-group-item`}>
-                      <small>{orderItem.title}</small>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className={`card-footer`}>
-                <ul className={`list-unstyled m-0 p-0`}>
-                  {this.state.summary.adjustments.map(adjustment => (
-                    <li key={adjustment.type} className={``}>
-                      {adjustment.label}: {adjustment.amount.formatted}
-                    </li>
-                  ))}
-                  <li className={``}>
-                    Total: {this.state.summary.order.total_price.formatted}
-                  </li>
-                </ul>
-              </div>
-            </div>
+            <CheckoutSummary
+              items={this.state.summary.order.order_items}
+              adjustments={this.state.summary.adjustments}
+              totalPrice={this.state.summary.order.total_price}
+            />
             <div className={`mt-3`}>
               <p><strong>Have a promotional code?</strong></p>
               <div className={`form-group`}>
