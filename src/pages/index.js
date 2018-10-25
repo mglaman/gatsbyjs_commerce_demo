@@ -28,43 +28,5 @@ export const pageQuery = graphql`
         }
       }
     }
-    nextTwoPromotedRecipes: allCommerceProductClothing(
-      sort: { fields: [created] }
-      limit: 2
-      skip: 1
-    ) {
-      edges {
-        node {
-          title
-          fields {
-            slug
-          }
-          relationships {
-            field_brand {
-              name
-            }
-          }
-        }
-      }
-    }
-    nextFourPromotedRecipes: allCommerceProductClothing(
-      sort: { fields: [created] }
-      limit: 4
-      skip: 3
-    ) {
-      edges {
-        node {
-          title
-          fields {
-            slug
-          }
-          relationships {
-            field_brand {
-              name
-            }
-          }
-        }
-      }
-    }
   }
 `

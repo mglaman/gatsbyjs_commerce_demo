@@ -21,6 +21,7 @@ exports.onCreateNode = ({ node, getNode, actions }) => {
 
 // Implement the Gatsby API “createPages”. This is called once the
 // data layer is bootstrapped to let plugins create pages from data.
+/*
 exports.createPages = ({ actions, graphql }) => {
     const { createPage } = actions
 
@@ -62,3 +63,4 @@ exports.createPages = ({ actions, graphql }) => {
         )
     })
 }
+*/

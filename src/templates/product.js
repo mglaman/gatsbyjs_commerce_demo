@@ -180,7 +180,7 @@ export const query = graphql`
 query ($slug: String!) {
   commerceProductClothing(fields: {slug: {eq: $slug}}) {
     id
-    uuid
+    drupal_id
     title
     body {
       processed
@@ -194,8 +194,8 @@ query ($slug: String!) {
       }
       variations {
         id
-        uuid
-        variation_id
+        drupal_id
+        drupal_internal__variation_id
         title
         sku
         price {
@@ -205,13 +205,13 @@ query ($slug: String!) {
         relationships {
           attribute_size {
             id
-            attribute_value_id
+            drupal_internal__attribute_value_id
             name
             weight
           }
           attribute_color {
             id
-            attribute_value_id
+            drupal_internal__attribute_value_id
             name
             weight
             field_color {
