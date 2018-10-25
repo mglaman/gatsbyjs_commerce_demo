@@ -76,7 +76,7 @@ class ProductTemplate extends Component {
 
   render () {
     const { data } = this.props
-    const images = this.state.defaultVariation.relationships.field_images
+    // const images = this.state.defaultVariation.relationships.field_images
     return (
       <Layout>
         <div className={`container`}>
@@ -85,17 +85,17 @@ class ProductTemplate extends Component {
           ) : []}
           <div className={`row`}>
             <div className={`col-md-6`}>
-              <Img fluid={images[0].localFile.childImageSharp.fluid}/>
-              <div className={`row mb-2 mt-2`}>
-                {images
-                  .filter(image => image.hasOwnProperty('localFile') && image.localFile !== null)
-                  .filter(image => image.localFile.hasOwnProperty('childImageSharp') && image.localFile.childImageSharp !== null)
-                  .map(image => (
-                    <div key={image.id} className={`col mr-3 ml-3`}>
-                      <Img fluid={image.localFile.childImageSharp.fluid}/>
-                    </div>
-                  ))}
-              </div>
+              {/*<Img fluid={images[0].localFile.childImageSharp.fluid}/>*/}
+              {/*<div className={`row mb-2 mt-2`}>*/}
+                {/*{images*/}
+                  {/*.filter(image => image.hasOwnProperty('localFile') && image.localFile !== null)*/}
+                  {/*.filter(image => image.localFile.hasOwnProperty('childImageSharp') && image.localFile.childImageSharp !== null)*/}
+                  {/*.map(image => (*/}
+                    {/*<div key={image.id} className={`col mr-3 ml-3`}>*/}
+                      {/*<Img fluid={image.localFile.childImageSharp.fluid}/>*/}
+                    {/*</div>*/}
+                  {/*))}*/}
+              {/*</div>*/}
             </div>
             <div className={`col-md-6`}>
               <h1 className={`font-weight-light`}>{data.commerceProductClothing.title}</h1>
@@ -221,15 +221,6 @@ query ($slug: String!) {
           }
           field_images {
             id
-            localFile {
-              id
-              absolutePath
-              childImageSharp {
-                fluid(maxWidth: 555, maxHeight: 570) {
-                  ...GatsbyImageSharpFluid
-                }
-              }
-            }
             filename,
           }
         }

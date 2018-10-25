@@ -21,7 +21,6 @@ exports.onCreateNode = ({ node, getNode, actions }) => {
 
 // Implement the Gatsby API “createPages”. This is called once the
 // data layer is bootstrapped to let plugins create pages from data.
-/*
 exports.createPages = ({ actions, graphql }) => {
     const { createPage } = actions
 
@@ -35,7 +34,7 @@ exports.createPages = ({ actions, graphql }) => {
             allCommerceProductClothing {
               edges {
                 node {
-                  product_id
+                  drupal_internal__product_id
                   fields {
                     slug
                   }
@@ -47,20 +46,20 @@ exports.createPages = ({ actions, graphql }) => {
             ).then(result => {
                 if (result.errors) {
                     reject(result.errors)
-                }
-
-                // Create pages for each recipe.
-                result.data.allCommerceProductClothing.edges.forEach(({ node }) => {
+                } else {
+                  console.debug(result);
+                  // Create pages for each recipe.
+                  result.data.allCommerceProductClothing.edges.forEach(({ node }) => {
                     createPage({
-                        path: node.fields.slug,
-                        component: clothingTemplate,
-                        context: {
-                            slug: node.fields.slug,
-                        },
+                      path: node.fields.slug,
+                      component: clothingTemplate,
+                      context: {
+                        slug: node.fields.slug,
+                      },
                     })
-                })
+                  })
+                }
             })
         )
     })
 }
-*/
