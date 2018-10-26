@@ -47,7 +47,6 @@ exports.createPages = ({ actions, graphql }) => {
                 if (result.errors) {
                     reject(result.errors)
                 } else {
-                  console.debug(result);
                   // Create pages for each recipe.
                   result.data.allCommerceProductClothing.edges.forEach(({ node }) => {
                     createPage({
