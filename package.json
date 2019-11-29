@@ -8,6 +8,7 @@
     "bootstrap": "^4.1.2",
     "dotenv": "^6.0.0",
     "gatsby": "^2.17.11",
+    "gatsby-cli": "^2.8.14",
     "gatsby-image": "^2.2.31",
     "gatsby-plugin-glamor": "^2.0.5",
     "gatsby-plugin-google-analytics": "^2.0.5",
@@ -37,6 +38,7 @@
   "main": "n/a",
   "scripts": {
     "develop": "NODE_TLS_REJECT_UNAUTHORIZED=0 gatsby develop",
+    "debug": "node --nolazy --inspect-brk node_modules/.bin/gatsby develop",
     "build": "NODE_TLS_REJECT_UNAUTHORIZED=0 gatsby build",
     "deploy": "gatsby build && firebase deploy"
   }

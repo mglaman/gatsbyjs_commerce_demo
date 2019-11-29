@@ -9,7 +9,7 @@ module.exports = {
   },
   plugins: [
       {
-          resolve: 'gatsby-source-drupal-fork',
+          resolve: 'gatsby-source-drupal',
           options: {
               baseUrl: process.env.API_URL,
               apiBase: 'jsonapi', // endpoint of Drupal server

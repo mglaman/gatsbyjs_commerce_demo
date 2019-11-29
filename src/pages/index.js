@@ -1,6 +1,5 @@
 import React from 'react'
 import { Link } from 'gatsby'
-import { graphql } from 'gatsby'
 import Layout from '../layouts'
 
 class IndexPage extends React.Component {
@@ -8,7 +7,7 @@ class IndexPage extends React.Component {
     return (
       <Layout>
         <div className={`container`}>
-          <Link to={`/product/drupal-commerce-hoodie`}>Drupal Commerce Hoodie</Link>
+          <Link to={`/product/802dfe56-8536-4287-a0fa-6bed3fd3a621`}>Drupal Commerce Hoodie</Link>
         </div>
       </Layout>
     )
@@ -16,17 +15,3 @@ class IndexPage extends React.Component {
 }
 
 export default IndexPage
-export const pageQuery = graphql`
-  query {
-    topRecipe: allCommerceProductClothing(sort: { fields: [created] }, limit: 1) {
-      edges {
-        node {
-          title
-          fields {
-            slug
-          }
-        }
-      }
-    }
-  }
-`

@@ -76,7 +76,7 @@ class ProductTemplate extends Component {
 
   render () {
     const { data } = this.props
-    // const images = this.state.defaultVariation.relationships.field_images
+    const images = this.state.defaultVariation.relationships.field_images
     return (
       <Layout>
         <div className={`container`}>
@@ -216,7 +216,6 @@ query ($slug: String!) {
             weight
             field_color {
               color
-              opacity
             }
           }
           field_images {

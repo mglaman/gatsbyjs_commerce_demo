@@ -8,7 +8,7 @@ const AllRecipes = ({ data }) => (
     <ul>
       {data.allCommerceProductClothing.edges.map(({ node }) => (
         <li>
-          <Link to={node.fields.slug}>{node.title}</Link>
+          <Link to={node.id}>{node.title}</Link>
         </li>
       ))}
     </ul>
@@ -23,9 +23,7 @@ export const query = graphql`
       edges {
         node {
           title
-          fields {
-            slug
-          }
+          id
         }
       }
     }

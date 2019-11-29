@@ -7,14 +7,14 @@ exports.onCreateNode = ({ node, getNode, actions }) => {
         createNodeField({
             node,
             name: `slug`,
-            value: node.path.alias,
+            value: node.id,
         })
     }
     if (node.internal.type === `commerce_product__simple`) {
         createNodeField({
             node,
             name: `slug`,
-            value: node.path.alias,
+            value: node.id,
         })
     }
 }
@@ -35,6 +35,7 @@ exports.createPages = ({ actions, graphql }) => {
               edges {
                 node {
                   drupal_internal__product_id
+                  id
                   fields {
                     slug
                   }
