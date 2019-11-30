@@ -4,28 +4,46 @@ import Layout from '../layouts'
 
 const AllRecipes = ({ data }) => (
   <Layout>
-    <h1>Recipes</h1>
-    <ul>
-      {data.allCommerceProductClothing.edges.map(({ node }) => (
-        <li>
-          <Link to={node.id}>{node.title}</Link>
-        </li>
-      ))}
-    </ul>
+    <div className={`container`}>
+      <ul>
+        {
+        Object.keys(data).map(
+            productTypeEdge => data[productTypeEdge].edges.map(({ node }) => {
+              console.log(node)
+              return <li><Link to={node.fields.slug}>{node.title}</Link></li>;
+            })
+          )
+        }
+      </ul>
+    </div>
   </Layout>
 )
 
 export default AllRecipes
 
 export const query = graphql`
-  query {
-    allCommerceProductClothing(limit: 1000) {
-      edges {
-        node {
-          title
-          id
+{
+  allCommerceProductClothing(limit: 1000) {
+    edges {
+      node {
+        title
+        id
+        fields {
+          slug
         }
       }
     }
   }
+  allCommerceProductSimple(limit: 1000) {
+    edges {
+      node {
+        title
+        id
+        fields {
+          slug
+        }
+      }
+    }
+  }
+}
 `

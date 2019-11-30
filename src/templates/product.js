@@ -11,6 +11,7 @@ class ProductTemplate extends Component {
     super(props)
     this.onChange = this.onChange.bind(this)
     const { data } = this.props
+    console.log(data);
     const variations = data.commerceProductClothing.relationships.variations
     const attributes = {}
     // @todo It'd be great to preprocess the attribute matrix.
@@ -218,6 +219,48 @@ query ($slug: String!) {
               color
             }
           }
+          field_images {
+            id
+            filename,
+            localFile {
+              id
+              absolutePath
+              childImageSharp {
+                fluid(maxWidth: 555, maxHeight: 570) {
+                  ...GatsbyImageSharpFluid
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+    commerceProductSimple(fields: {slug: {eq: $slug}}) {
+    id
+    drupal_id
+    title
+    body {
+      processed
+    }
+    relationships {
+      field_product_categories {
+        name
+      }
+      field_brand {
+        name
+      }
+      variations {
+        id
+        drupal_id
+        drupal_internal__variation_id
+        title
+        sku
+        price {
+          number
+          currency_code
+        }
+        relationships {
           field_images {
             id
             filename,
